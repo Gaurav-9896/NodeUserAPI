@@ -1,40 +1,40 @@
 {
-  "swagger": "2.0",
+  "openapi": "3.0.0",
   "info": {
     "title": "User API",
     "description": "API for user registration and login",
     "version": "1.0.0"
   },
-  "host": "localhost:3000",
-  "basePath": "/",
-  "schemes": ["http"],
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
   "paths": {
     "/api/register": {
       "post": {
         "summary": "Register a new user",
         "description": "Creates a new user account",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "firstName": { "type": "string" },
-                "lastName": { "type": "string" },
-                "email": { "type": "string", "format": "email" },
-                "password": { "type": "string" },
-                "dob": { "type": "string", "format": "date" }
-              },
-              "required": ["firstName", "lastName", "email", "password", "dob"]
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRegistration"
+              }
             }
           }
-        ],
+        },
         "responses": {
-          "201": { "description": "User created successfully" },
-          "400": { "description": "Bad request - Invalid input" },
-          "500": { "description": "Internal Server Error" }
+          "201": {
+            "description": "User created successfully"
+          },
+          "400": {
+            "description": "Bad request - Invalid input"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       }
     },
@@ -42,25 +42,26 @@
       "post": {
         "summary": "User login",
         "description": "Authenticate and login user",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "email": { "type": "string", "format": "email" },
-                "password": { "type": "string" }
-              },
-              "required": ["email", "password"]
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLogin"
+              }
             }
           }
-        ],
+        },
         "responses": {
-          "200": { "description": "Login successful" },
-          "401": { "description": "Unauthorized - Invalid credentials" },
-          "500": { "description": "Internal Server Error" }
+          "200": {
+            "description": "Login successful"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid credentials"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       }
     },
@@ -69,19 +70,45 @@
         "summary": "Get user details",
         "description": "Retrieve details of the logged-in user",
         "responses": {
-          "200": { "description": "OK" },
-          "401": { "description": "Unauthorized" },
-          "500": { "description": "Internal Server Error" }
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       }
     }
   },
-  "securityDefinitions": {
-    "BearerAuth": {
-      "type": "apiKey",
-      "name": "Authorization",
-      "in": "header"
+  "components": {
+    "schemas": {
+      "UserRegistration": {
+        "type": "object",
+        "properties": {
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" },
+          "dob": { "type": "string", "format": "date" }
+        },
+        "required": ["firstName", "lastName", "email", "password", "dob"]
+      },
+      "UserLogin": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" }
+        },
+        "required": ["email", "password"]
+      }
     }
   },
-  "security": [{ "BearerAuth": [] }]
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ]
 }
