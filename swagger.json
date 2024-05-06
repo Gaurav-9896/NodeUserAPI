@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "User API",
-    "description": "Register and login API",
+    "description": "API for user registration and login",
     "version": "1.0.0"
   },
   "host": "localhost:3000",
@@ -11,88 +11,77 @@
   "paths": {
     "/api/register": {
       "post": {
-        "description": "",
+        "summary": "Register a new user",
+        "description": "Creates a new user account",
         "parameters": [
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "type": "object",
               "properties": {
-                "firstName": {
-                  "example": "FIrstName"
-                },
-                "lastName": {
-                  "example": "LastName"
-                },
-                "email": {
-                  "example": "johndoe@example.com"
-                },
-                "password": {
-                  "example": "secretpassword"
-                },
-                "dob": {
-                  "example": "1990-05-15"
-                }
-              }
+                "firstName": { "type": "string" },
+                "lastName": { "type": "string" },
+                "email": { "type": "string", "format": "email" },
+                "password": { "type": "string" },
+                "dob": { "type": "string", "format": "date" }
+              },
+              "required": ["firstName", "lastName", "email", "password", "dob"]
             }
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "201": { "description": "User created successfully" },
+          "400": { "description": "Bad request - Invalid input" },
+          "500": { "description": "Internal Server Error" }
         }
       }
     },
     "/api/login": {
       "post": {
-        "description": "",
+        "summary": "User login",
+        "description": "Authenticate and login user",
         "parameters": [
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "type": "object",
               "properties": {
-                "email": {
-                  "example": "johndoe@example.com"
-                },
-                "password": {
-                  "example": "secretpassword"
-                }
-              }
+                "email": { "type": "string", "format": "email" },
+                "password": { "type": "string" }
+              },
+              "required": ["email", "password"]
             }
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "200": { "description": "Login successful" },
+          "401": { "description": "Unauthorized - Invalid credentials" },
+          "500": { "description": "Internal Server Error" }
         }
       }
     },
-    "/api/login/userdetails": {
+    "/api/userdetails": {
       "get": {
-        "description": "",
+        "summary": "Get user details",
+        "description": "Retrieve details of the logged-in user",
         "responses": {
-          "default": {
-            "description": ""
-          }
+          "200": { "description": "OK" },
+          "401": { "description": "Unauthorized" },
+          "500": { "description": "Internal Server Error" }
         }
       }
     }
-  }
+  },
+  "securityDefinitions": {
+    "BearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [{ "BearerAuth": [] }]
 }
