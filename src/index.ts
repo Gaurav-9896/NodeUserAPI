@@ -9,6 +9,7 @@ import SwaggerDocument from "../swagger.json";
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(SwaggerDocument));
 
 connectDB();
 
@@ -16,7 +17,6 @@ app.get("/", (req: Request, res: Response) => {
   res.send("APi for user REgistration");
 });
 app.use("/api", userRoutes);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(SwaggerDocument));
 
 const PORT = config.PORT;
 
