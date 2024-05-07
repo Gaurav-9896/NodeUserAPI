@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000"
+      "url": "https://localhost:3000"
     }
   ],
   "paths": {
@@ -97,6 +97,13 @@
           "password": { "type": "string" }
         },
         "required": ["email", "password"]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   },
