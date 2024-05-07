@@ -1,10 +1,11 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
+import { Req } from "../interface/request";
 import jwt from "jsonwebtoken";
 import envConfig from "../config/config";
 
 
 export const authenticate = async (
-  req: Request<{ userId: string }>,
+  req:Req,
   res: Response,
   Next: NextFunction
 ) => {
@@ -24,7 +25,7 @@ export const authenticate = async (
     if (err) {
       return res.status(403).json({ message: "invalid token" });
     }
-    req.params = decoded;
+    req.user = decoded;
    
 
     Next();
