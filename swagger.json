@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://localhost:3000"
+      "url": "http://localhost:3000"
     }
   ],
   "paths": {
@@ -62,7 +62,7 @@
         }
       }
     },
-    "/api/userdetails": {
+    "/api/login/userdetails": {
       "get": {
         "summary": "Get user details",
         "description": "Retrieve details of the logged-in user",
@@ -72,6 +72,30 @@
           },
           "401": {
             "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/sendEmail": {
+      "post": {
+        "summary": "sending email",
+        "description": "email with login link sent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sendEmail"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully"
+          },
+          "400": {
+            "description": "Bad request - Invalid input"
           }
         }
       }
@@ -97,11 +121,21 @@
           "password": { "type": "string" }
         },
         "required": ["email", "password"]
+      },
+      "sendEmail": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" }
+        },
+        "required": ["email", "password"]
       }
     },
     "securitySchemes": {
-      "bearerAuth": {
+      "BearerAuth": {
         "type": "http",
+        "in": "header",
+        "name": "Authorization",
         "scheme": "bearer",
         "bearerFormat": "JWT"
       }

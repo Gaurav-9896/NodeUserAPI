@@ -7,6 +7,7 @@ import { authenticate } from "../Middleware/authenticateToken";
 import { Req } from "../interface/request";
 import { registerSchema } from "../utils/validation";
 import { generateResponse } from "../utils/Response";
+import { sendRegistrationEmail } from "../services/emailService";
 
 export const registerUser = async (
   req: Request,
@@ -38,6 +39,9 @@ export const registerUser = async (
       dob,
     });
     await newUser.save();
+    const loginUrl = `http://localhost:3000/api/login`;
+
+    sendRegistrationEmail(newUser.email, loginUrl, newUser.password);
     return generateResponse(res, 200, "User registered successfully", {
       data: newUser.id,
     });
@@ -53,21 +57,21 @@ export const loginUser = async (req: Request, res: Response) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ message: "email not found" });
+      return generateResponse(res, 404, "user not found");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Incorrect password" });
+      return generateResponse(res, 400, "Incorrect password");
     }
 
     const token = jwt.sign({ userId: user._id }, config.JWT_token as string, {
       expiresIn: "1h",
     });
-    res.status(200).json(`login succesful, TOKEN :${token}`);
+    generateResponse(res, 200, "login succesful", { token: token });
   } catch (error) {
     console.error("Login failed:", error);
-    res.status(500).json({ message: "Login failed" });
+    generateResponse(res, 500, "Login failed", error);
   }
 };
 
@@ -78,9 +82,20 @@ export const userDetails = async (req: Req, res: Response) => {
 
     const user = await User.findById(userId).select("-password");
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return generateResponse(res, 404, "User not found");
     }
 
-    res.status(200).json({ user });
-  } catch (error) {}
+    return generateResponse(res, 200, "Succefully got the user details", user);
+  } catch (error) {
+    return generateResponse(res, 500, "failed to get details", error);
+  }
+};
+
+export const sendEmailLink = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const loginUrl = `http://localhost:3000/api/login`;
+
+  sendRegistrationEmail(email, loginUrl, password);
+
+  return generateResponse(res, 200, "email sent");
 };

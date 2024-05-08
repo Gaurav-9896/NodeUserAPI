@@ -6,15 +6,8 @@ import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import SwaggerDocument from "../swagger.json";
 
-const CSS_URL =
-  "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
-
 const app = express();
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(SwaggerDocument, { customCssUrl: CSS_URL })
-);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(SwaggerDocument));
 app.use(cors());
 app.use(express.json());
 
