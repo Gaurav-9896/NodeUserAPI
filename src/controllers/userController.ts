@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken";
 import config from "../config/config";
 import { authenticate } from "../Middleware/authenticateToken";
 import { Req } from "../interface/request";
+import { registerSchema } from "../utils/validation";
+import { generateResponse } from "../utils/Response";
 
 export const registerUser = async (
   req: Request,
@@ -12,12 +14,20 @@ export const registerUser = async (
 ): Promise<any> => {
   const { firstName, lastName, email, password, dob } = req.body;
 
+  const { error } = registerSchema.validate({
+    firstName,
+    lastName,
+    email,
+    password,
+    dob,
+  });
+  if (error) {
+    return generateResponse(res, 400, "BAD REQUEST, WRONG INPUT", error);
+  }
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ code: 400, message: "User already exists", data: null });
+      return generateResponse(res, 400, "User already exists");
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
@@ -28,10 +38,12 @@ export const registerUser = async (
       dob,
     });
     await newUser.save();
-    res.status(201).json({ message: "User registered successfully" });
+    return generateResponse(res, 200, "User registered successfully", {
+      data: newUser.id,
+    });
   } catch (error) {
     console.error("User registration failed:", error);
-    res.status(400).json({ message: "Failed to register user" });
+    return generateResponse(res, 400, "Failed to register user", error);
   }
 };
 
