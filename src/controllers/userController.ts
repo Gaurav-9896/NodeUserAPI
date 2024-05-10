@@ -12,15 +12,20 @@ import { generateResponse } from "../utils/Response";
 import { Req } from "../interface/request";
 
 export const registerUser = async (req: Request, res: Response) => {
-
-  const { error, value } = loginSchema.validate(req.body);
-  if (error) {
-    return generateResponse(res, 400, "Bad request - Invalid input", error);
-  }
-
-  const { firstName, lastName, email, password, dob } = value;
+  
+  const { firstName, lastName, email, password, dob } = req.body;
 
   try {
+    const { error } = registerSchema.validate({
+      firstName,
+      lastName,
+      email,
+      password,
+      dob,
+    });
+    if (error) {
+      return generateResponse(res, 400, "Bad request - Wrong input", error);
+    }
 
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
