@@ -7,24 +7,20 @@ import {
 import { generateToken } from "../services/authService";
 import { comparePasswords, hashPassword} from "../services/bcryptService";
 import { sendRegistrationEmail } from "../services/emailService";
-import { registerSchema } from "../utils/validation";
+import { loginSchema, registerSchema } from "../utils/validation";
 import { generateResponse } from "../utils/Response";
 import { Req } from "../interface/request";
 
 export const registerUser = async (req: Request, res: Response) => {
-  const { firstName, lastName, email, password, dob } = req.body;
+
+  const { error, value } = loginSchema.validate(req.body);
+  if (error) {
+    return generateResponse(res, 400, "Bad request - Invalid input", error);
+  }
+
+  const { firstName, lastName, email, password, dob } = value;
 
   try {
-    const { error } = registerSchema.validate({
-      firstName,
-      lastName,
-      email,
-      password,
-      dob,
-    });
-    if (error) {
-      return generateResponse(res, 400, "Bad request - Wrong input", error);
-    }
 
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
@@ -46,7 +42,12 @@ export const registerUser = async (req: Request, res: Response) => {
 };
 
 export const loginUser = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { error, value } = loginSchema.validate(req.body);
+  if (error) {
+    return generateResponse(res, 400, "Bad request - Invalid input", error);
+  }
+
+  const { email, password } = value;
 
   try {
     const user = await findUserByEmail(email);
