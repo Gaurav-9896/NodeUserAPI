@@ -9,22 +9,19 @@ export const authenticate = async (
   res: Response,
   Next: NextFunction
 ) => {
-  debugger;
-  console.log("inside authenticate");
-
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.slice(7);
 
   if (!token) {
-    return generateResponse(res,404, "Token is not found enter the token" );
+    return generateResponse(res, 404, "Token is not found enter the token");
   }
   console.log(`token ${token}`);
 
   jwt.verify(token, envConfig.JWT_token as string, (err: any, decoded: any) => {
     if (err) {
-      return generateResponse(res,401, "invalid token",err );
+      return generateResponse(res, 401, "invalid or expired token", err);
     }
-    req.user = decoded;
+    req.user = decoded.userId;
 
     Next();
   });

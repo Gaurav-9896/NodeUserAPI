@@ -75,30 +75,6 @@
           }
         }
       }
-    },
-    "/api/sendEmail": {
-      "post": {
-        "summary": "sending email",
-        "description": "email with login link sent",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/sendEmail"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "User created successfully"
-          },
-          "400": {
-            "description": "Bad request - Invalid input"
-          }
-        }
-      }
     }
   },
   "components": {
@@ -115,14 +91,6 @@
         "required": ["firstName", "lastName", "email", "password", "dob"]
       },
       "UserLogin": {
-        "type": "object",
-        "properties": {
-          "email": { "type": "string", "format": "email" },
-          "password": { "type": "string" }
-        },
-        "required": ["email", "password"]
-      },
-      "sendEmail": {
         "type": "object",
         "properties": {
           "email": { "type": "string", "format": "email" },

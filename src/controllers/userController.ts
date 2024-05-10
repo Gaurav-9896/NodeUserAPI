@@ -41,7 +41,7 @@ export const registerUser = async (
     await newUser.save();
     const loginUrl = `http://localhost:3000/api/login`;
 
-    sendRegistrationEmail(newUser.email, loginUrl, newUser.password);
+    sendRegistrationEmail(newUser.email, loginUrl);
     return generateResponse(res, 200, "User registered successfully", {
       data: newUser.id,
     });
@@ -91,11 +91,3 @@ export const userDetails = async (req: Req, res: Response) => {
   }
 };
 
-export const sendEmailLink = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  const loginUrl = `http://localhost:3000/api/login`;
-
-  sendRegistrationEmail(email, loginUrl, password);
-
-  return generateResponse(res, 200, "email sent");
-};
