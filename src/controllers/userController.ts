@@ -5,14 +5,13 @@ import {
   findUserById,
 } from "../services/userService";
 import { generateToken } from "../services/authService";
-import { comparePasswords, hashPassword} from "../services/bcryptService";
+import { comparePasswords, hashPassword } from "../services/bcryptService";
 import { sendRegistrationEmail } from "../services/emailService";
 import { loginSchema, registerSchema } from "../utils/validation";
 import { generateResponse } from "../utils/Response";
 import { Req } from "../interface/request";
 
 export const registerUser = async (req: Request, res: Response) => {
-  
   const { firstName, lastName, email, password, dob } = req.body;
 
   try {
@@ -24,15 +23,14 @@ export const registerUser = async (req: Request, res: Response) => {
       dob,
     });
     if (error) {
-      return generateResponse(res, 400, "Bad request - Wrong input", error);
+      return generateResponse(res, 400, "", error.message);
     }
 
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
       return generateResponse(res, 400, "User already exists");
     }
-    const hashedPassword =await hashPassword(password)
-    const newUser = await createUser(firstName, lastName, email, hashedPassword, dob);
+    const newUser = await createUser(firstName, lastName, email, password, dob);
 
     const loginUrl = `http://localhost:3000/api/login`;
     sendRegistrationEmail(newUser.email, loginUrl);
@@ -60,7 +58,6 @@ export const loginUser = async (req: Request, res: Response) => {
       return generateResponse(res, 404, "User not found");
     }
 
-   
     const isMatch = await comparePasswords(password, user.password);
     if (!isMatch) {
       return generateResponse(res, 400, "Incorrect password");
