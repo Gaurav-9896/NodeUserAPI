@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import {
   createUser,
   findUserByEmail,
@@ -11,40 +11,13 @@ import { loginSchema, registerSchema } from "../utils/validation";
 import { generateResponse } from "../utils/Response";
 import { Req } from "../interface/request";
 
-export const registerUser = async (req: Request, res: Response) => {
-  const { firstName, lastName, email, password, dob } = req.body;
 
-  try {
-    const { error } = registerSchema.validate({
-      firstName,
-      lastName,
-      email,
-      password,
-      dob,
-    });
-    if (error) {
-      return generateResponse(res, 400, "", error.message);
-    }
 
-    const existingUser = await findUserByEmail(email);
-    if (existingUser) {
-      return generateResponse(res, 400, "User already exists");
-    }
-    const newUser = await createUser(firstName, lastName, email, password, dob);
-
-    const loginUrl = `http://localhost:3000/api/login`;
-    sendRegistrationEmail(newUser.email, loginUrl);
-
-    return generateResponse(res, 201, "User registered successfully", {
-      data: newUser.id,
-    });
-  } catch (error) {
-    console.error("User registration failed:", error);
-    return generateResponse(res, 400, "Failed to register user", error);
-  }
-};
-
-export const loginUser = async (req: Request, res: Response) => {
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { error, value } = loginSchema.validate(req.body);
   if (error) {
     return generateResponse(res, 400, "Bad request - Invalid input", error);
@@ -68,11 +41,15 @@ export const loginUser = async (req: Request, res: Response) => {
     return generateResponse(res, 200, "Login successful", { token });
   } catch (error) {
     console.error("Login failed:", error);
-    return generateResponse(res, 500, "Login failed", error);
+    next(error);
   }
 };
 
-export const userDetails = async (req: Req, res: Response) => {
+export const userDetails = async (
+  req: Req,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const userId = req.user;
 
@@ -89,6 +66,6 @@ export const userDetails = async (req: Req, res: Response) => {
     );
   } catch (error) {
     console.error("Failed to get user details:", error);
-    return generateResponse(res, 500, "Failed to get user details", error);
+    next(error);
   }
 };

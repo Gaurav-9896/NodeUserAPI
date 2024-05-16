@@ -5,6 +5,7 @@ import config from "./config/config";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import SwaggerDocument from "../swagger.json";
+import { globalErrorHandler } from "./Middleware/globalErrorHandler";
 
 const app = express();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(SwaggerDocument));
@@ -18,6 +19,8 @@ app.get("/", (req: Request, res: Response) => {
 });
 app.use("/api", userRoutes);
 
+
+app.use(globalErrorHandler)
 const PORT = config.PORT;
 
 app.listen(PORT, () => {
