@@ -1,4 +1,4 @@
-
+import { valid } from "joi";
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IUser extends Document {
@@ -17,9 +17,9 @@ const userSchema: Schema = new Schema({
   password: { type: String, required: true },
   dob: { type: Date, required: true },
   role: {
-    type: Date,
-    required: true,
-    enum: ["admin", "user"],
+    type: String,
+    
+    valid: ["admin", "user"],
     default: "user",
   },
 });

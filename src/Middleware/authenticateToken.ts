@@ -15,7 +15,7 @@ export const authenticate = async (
   if (!token) {
     return generateResponse(res, 404, "Token is not found enter the token");
   }
-  console.log(`token ${token}`);
+ 
 
   jwt.verify(token, envConfig.JWT_token as string, (err: any, decoded: any) => {
     if (err) {

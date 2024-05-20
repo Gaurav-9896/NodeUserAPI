@@ -10,7 +10,8 @@ export const createUser = async (
   lastName: string,
   email: string,
   password: string,
-  dob: string
+  dob: string,
+  role: string
 ) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = new User({
@@ -19,6 +20,7 @@ export const createUser = async (
     email,
     password: hashedPassword,
     dob,
+    role,
   });
   await newUser.save();
   return newUser;
@@ -27,3 +29,5 @@ export const createUser = async (
 export const findUserById = async (userId: string) => {
   return await User.findById(userId).select("-password");
 };
+
+
