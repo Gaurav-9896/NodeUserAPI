@@ -4,7 +4,7 @@ import { sendRegistrationEmail } from "../services/emailService";
 import { generateResponse } from "../utils/Response";
 import { registerSchema } from "../utils/validation";
 import User from "../models/userModel";
-import { deleteUser, getUserById, updateUser } from "../services/adminService";
+import { deleteUser,  updateUser } from "../services/adminService";
 
 export const registerUser = async (
   req: Request,

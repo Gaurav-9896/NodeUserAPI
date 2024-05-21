@@ -8,6 +8,7 @@ export interface IUser extends Document {
   password: string;
   dob: Date;
   role: String;
+
 }
 
 const userSchema: Schema = new Schema({
@@ -18,7 +19,6 @@ const userSchema: Schema = new Schema({
   dob: { type: Date, required: true },
   role: {
     type: String,
-    
     valid: ["admin", "user"],
     default: "user",
   },
