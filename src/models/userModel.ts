@@ -8,7 +8,6 @@ export interface IUser extends Document {
   password: string;
   dob: Date;
   role: String;
-
 }
 
 const userSchema: Schema = new Schema({

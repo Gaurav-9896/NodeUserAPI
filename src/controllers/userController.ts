@@ -10,8 +10,7 @@ import { sendRegistrationEmail } from "../services/emailService";
 import { loginSchema, registerSchema } from "../utils/validation";
 import { generateResponse } from "../utils/Response";
 import { Req } from "../interface/request";
-
-
+import { getRatingsByUser } from "../services/ratingService";
 
 export const loginUser = async (
   req: Request,
@@ -57,16 +56,18 @@ export const userDetails = async (
     if (!user) {
       return generateResponse(res, 404, "User not found");
     }
-
+     const rating =await getRatingsByUser(userId);
+     if(!rating){
+      return generateResponse(res,404,"user has not been rated yet")
+     }
     return generateResponse(
       res,
       200,
       "Successfully got the user details",
-      user
+     { user,rating}
     );
   } catch (error) {
     console.error("Failed to get user details:", error);
     next(error);
   }
 };
-

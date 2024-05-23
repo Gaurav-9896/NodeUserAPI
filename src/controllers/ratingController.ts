@@ -1,19 +1,23 @@
 import { NextFunction, Response } from "express";
-import { createRating, findRatingById, updateRating, deleteRating } from "../services/ratingService";
+import {
+  createRating,
+  findRatingById,
+  updateRating,
+  deleteRating,
+  getRatingsByUser,
+  deleteRatingById,
+  getAllRatingsForUser,
+} from "../services/ratingService";
 import { generateResponse } from "../utils/Response";
 import { Req } from "../interface/request";
-import {ratingSchema} from '../utils/validation'
+import { ratingSchema } from "../utils/validation";
 
-export const rateUser = async (
-  req: Req,
-  res: Response,
-  next: NextFunction
-) => {
+export const rateUser = async (req: Req, res: Response, next: NextFunction) => {
   const { toUserId, score } = req.body;
   const fromUserId = req.user;
 
   try {
-    const {error}  = ratingSchema.validate(req.body);
+    const { error } = ratingSchema.validate(req.body);
     if (error) {
       return generateResponse(res, 400, "Validation error", error.message);
     }
@@ -32,102 +36,94 @@ export const rateUser = async (
   }
 };
 
-// Get rating
-export const getRating = async (
+// Update rating
+export const updateRatingById = async (
   req: Req,
   res: Response,
   next: NextFunction
 ) => {
-  const { ratingId } = req.body;
+  const score = req.body;
+  const userId = req.user;
 
   try {
-    const rating = await findRatingById(ratingId);
+    const { error } = ratingSchema.validate(req.body);
+    if (error) {
+      return generateResponse(res, 400, "Validation error", error.message);
+    }
+
+    const rating = await getRatingsByUser(userId);
     if (!rating) {
       return generateResponse(res, 404, "Rating not found");
     }
 
-    return generateResponse(res, 200, "Rating fetched successfully", {
+    const ratings = rating.find((rating) => rating.fromUserId === userId);
+    if (!ratings) {
+      return generateResponse(res, 403, "Access denied");
+    }
+
+    ratings.score = score;
+    await updateRating(rating);
+    return generateResponse(res, 200, "Rating updated successfully", {
       data: rating,
     });
   } catch (error) {
-    console.error("Fetching rating failed:", error);
+    console.error("Updating rating failed:", error);
     next(error);
   }
 };
 
-// Update rating
-// export const updateRatingById = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   const { ratingId } = req.body ;
-//   const { score } = req.body;
-//   const userId = req.userId;
-
-//   try {
-//     const rating = await findRatingById(ratingId);
-//     if (!rating) {
-//       return generateResponse(res, 404, "Rating not found");
-//     }
-
-//     if (rating.fromUserId.toString() !== userId) {
-//       return generateResponse(res, 403, "Access denied");
-//     }
-
-//     rating.score = score;
-//     await updateRating(rating);
-//     return generateResponse(res, 200, "Rating updated successfully", {
-//       data: rating,
-//     });
-//   } catch (error) {
-//     console.error("Updating rating failed:", error);
-//     next(error);
-//   }
-// };
-
 // // Delete rating
-// export const deleteRatingById = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   const { ratingId } = req.params;
-//   const userId = req.userId;
+export const deleteUserRating = async (
+  req: Req,
+  res: Response,
+  next: NextFunction
+) => {
+  const userId = req.user;
 
-//   try {
-//     const rating = await findRatingById(ratingId);
-//     if (!rating) {
-//       return generateResponse(res, 404, "Rating not found");
-//     }
+  try {
+    // Fetch ratings by user ID
+    const ratings = await getRatingsByUser(userId);
+    if (!ratings) {
+      return generateResponse(res, 404, "Rating not found");
+    }
 
-//     if (rating.fromUserId.toString() !== userId) {
-//       return generateResponse(res, 403, "Access denied");
-//     }
+    // Find the specific rating from the array where fromUserId matches userId
+    const ratingIndex = ratings.findIndex(
+      (rating) => rating.fromUserId === userId
+    );
+    if (ratingIndex === -1) {
+      return generateResponse(res, 403, "Access denied");
+    }
 
-//     await deleteRating(ratingId);
-//     return generateResponse(res, 200, "Rating deleted successfully");
-//   } catch (error) {
-//     console.error("Deleting rating failed:", error);
-//     next(error);
-//   }
-// };
+    // Remove the rating from the array
+    const [deletedRating] = ratings.splice(ratingIndex, 1);
+    await deleteRatingById(deletedRating.id); // Assuming each rating has a unique ID
+
+    // Send success response
+    return generateResponse(res, 200, "Rating deleted successfully", {
+      data: deletedRating,
+    });
+  } catch (error) {
+    console.error("Deleting rating failed:", error);
+    next(error); // Pass error to next middleware
+  }
+};
 
 // // Get all ratings for a user
-// export const getAllRatingsForUser = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   const { userId } = req.params;
+export const getAllRatings = async (
+  req: Req,
+  res: Response,
+  next: NextFunction
+) => {
+  const { userId } = req.user;
 
-//   try {
-//     const ratings = await getAllRatingsForUser(userId);
-//     return generateResponse(res, 200, "Ratings fetched successfully", {
-//       data: ratings,
-//     });
-//   } catch (error) {
-//     console.error("Fetching ratings failed:", error);
-//     next(error);
-//   }
-// };
+  try {
+    const ratings = await getAllRatingsForUser(userId);
+    return generateResponse(res, 200, "Ratings fetched successfully", {
+      data: ratings,
+    });
+  } catch (error) {
+    console.error("Fetching ratings failed:", error);
+    next(error);
+  }
+};
