@@ -11,6 +11,7 @@ import {
 import { generateResponse } from "../utils/Response";
 import { Req } from "../interface/request";
 import { ratingSchema } from "../utils/validation";
+import { ObjectId } from "mongodb";
 
 export const rateUser = async (req: Req, res: Response, next: NextFunction) => {
   const { toUserId, score } = req.body;
@@ -42,7 +43,7 @@ export const updateRatingById = async (
   res: Response,
   next: NextFunction
 ) => {
-  const score = req.body;
+  const { score } = req.body;
   const userId = req.user;
 
   try {
@@ -51,17 +52,25 @@ export const updateRatingById = async (
       return generateResponse(res, 400, "Validation error", error.message);
     }
 
-    const rating = await getRatingsByUser(userId);
-    if (!rating) {
+    const ratings = await getRatingsByUser(userId);
+    if (!ratings) {
       return generateResponse(res, 404, "Rating not found");
     }
 
-    const ratings = rating.find((rating) => rating.fromUserId === userId);
-    if (!ratings) {
-      return generateResponse(res, 403, "Access denied");
+    const rating = ratings.find((rating) => {
+      const fromUserId = new ObjectId(rating.fromUserId);
+      return fromUserId.equals(userId);
+    });
+    console.log(rating);
+    if (!rating) {
+      return generateResponse(
+        res,
+        403,
+        "Access denied, user can only update rating given by themselves"
+      );
     }
 
-    ratings.score = score;
+    rating.score = score;
     await updateRating(rating);
     return generateResponse(res, 200, "Rating updated successfully", {
       data: rating,
@@ -72,8 +81,53 @@ export const updateRatingById = async (
   }
 };
 
-// // Delete rating
+// Define the deleteRating function
 export const deleteUserRating = async (
+  req: Req,
+  res: Response,
+  next: NextFunction
+) => {
+  // Extract necessary data from request
+  const { toUserId } = req.body; // Assuming toUserId is the identifier of the user whose rating needs to be deleted
+  const userId = req.user;
+  try {
+    const ratings = await getRatingsByUser(userId);
+    if (!ratings) {
+      return generateResponse(res, 404, "Ratings not found for user");
+    }
+    const ratingToDelete = ratings.find((rating) => {
+      const toUserId = new ObjectId(rating.toUserId);
+      return toUserId.equals(toUserId);
+    });
+
+    if (!ratingToDelete) {
+      return generateResponse(res, 404, "Rating not found");
+    }
+    const rating = ratings.find((rating) => {
+      const fromUserId = new ObjectId(rating.fromUserId);
+      return fromUserId.equals(userId);
+    });
+    console.log(rating);
+    if (!rating) {
+      return generateResponse(
+        res,
+        403,
+        "Access denied, user can only update rating given by themselves"
+      );
+    }
+
+    
+
+    await deleteRatingById(ratingToDelete._id);
+    return generateResponse(res, 200, "Rating deleted successfully");
+  } catch (error) {
+    console.error("Deleting rating failed:", error);
+    next(error);
+  }
+};
+
+//get all rating
+export const getAllRatings = async (
   req: Req,
   res: Response,
   next: NextFunction
@@ -81,44 +135,12 @@ export const deleteUserRating = async (
   const userId = req.user;
 
   try {
-    // Fetch ratings by user ID
-    const ratings = await getRatingsByUser(userId);
-    if (!ratings) {
-      return generateResponse(res, 404, "Rating not found");
-    }
-
-    // Find the specific rating from the array where fromUserId matches userId
-    const ratingIndex = ratings.findIndex(
-      (rating) => rating.fromUserId === userId
-    );
-    if (ratingIndex === -1) {
-      return generateResponse(res, 403, "Access denied");
-    }
-
-    // Remove the rating from the array
-    const [deletedRating] = ratings.splice(ratingIndex, 1);
-    await deleteRatingById(deletedRating.id); // Assuming each rating has a unique ID
-
-    // Send success response
-    return generateResponse(res, 200, "Rating deleted successfully", {
-      data: deletedRating,
-    });
-  } catch (error) {
-    console.error("Deleting rating failed:", error);
-    next(error); // Pass error to next middleware
-  }
-};
-
-// // Get all ratings for a user
-export const getAllRatings = async (
-  req: Req,
-  res: Response,
-  next: NextFunction
-) => {
-  const { userId } = req.user;
-
-  try {
     const ratings = await getAllRatingsForUser(userId);
+
+    if (!ratings || ratings.length === 0) {
+      return generateResponse(res, 404, "No ratings found for this user");
+    }
+
     return generateResponse(res, 200, "Ratings fetched successfully", {
       data: ratings,
     });

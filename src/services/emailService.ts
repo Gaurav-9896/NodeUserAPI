@@ -43,3 +43,30 @@ export async function sendRegistrationEmail(recipientEmail: string, loginLink: s
       throw error;
     }
   }
+
+  const sendEmail = async (to: string, subject: string, text: string) => {
+    try {
+      
+      
+  
+      // Define email options
+      const mailOptions = {
+        from: config.user,
+        to,
+        subject,
+        text,
+      };
+  
+      // Send the email
+      await transport.sendMail(mailOptions);
+      console.log('Email sent successfully');
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  };
+  
+  // Function to send email notification to admin
+  const sendEmailToAdmin = async (message: string) => {
+    const adminEmail = config.user as string; 
+    await sendEmail(adminEmail, 'User Blocked', message);
+  };

@@ -30,4 +30,3 @@ export const findUserById = async (userId: string) => {
   return await User.findById(userId).select("-password");
 };
 
-

@@ -13,7 +13,7 @@ export const createRating = async (
 export const findRatingById = async (ratingId: string) => {
   return await Rating.findById(ratingId);
 };
-export const getRatingsByUser = async (userId: string) => {
+export const getRatingsByUser =  async (userId: string) => {
   return await Rating.find({ fromUserId: userId });
 };
 

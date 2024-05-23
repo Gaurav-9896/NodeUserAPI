@@ -8,6 +8,6 @@ const envConfig = {
     JWT_token :process.env.JWT_TOKEN,
     user:process.env.user,
     pass:process.env.pass
-}
+} 
 
-export default envConfig;
+export default envConfig ;

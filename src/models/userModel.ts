@@ -8,6 +8,9 @@ export interface IUser extends Document {
   password: string;
   dob: Date;
   role: String;
+  isBlocked: Boolean;
+  blockedUntil?: Date;
+  incorrectLoginAttempts: number;
 }
 
 const userSchema: Schema = new Schema({
@@ -21,6 +24,9 @@ const userSchema: Schema = new Schema({
     valid: ["admin", "user"],
     default: "user",
   },
+  isBlocked: { type: Boolean, default: false },
+  blockedUntil: { type: Date },
+  incorrectLoginAttempts: { type: Number, default: 0 }
 });
 
 export default mongoose.model<IUser>("User", userSchema);
