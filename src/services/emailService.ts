@@ -1,5 +1,8 @@
 import nodemailer from 'nodemailer';
 import config from '../config/config';
+import { checkAdminRole } from '../Middleware/checkAdminRole';
+import {  getAdminEmail } from '../Middleware/getAdminEmail';
+
 
 const transport = nodemailer.createTransport({
     service:'Gmail',
@@ -44,7 +47,7 @@ export async function sendRegistrationEmail(recipientEmail: string, loginLink: s
     }
   }
 
-  const sendEmail = async (to: string, subject: string, text: string) => {
+  export const sendEmail = async (to: string, subject: string, text: string) => {
     try {
       
       
@@ -65,8 +68,4 @@ export async function sendRegistrationEmail(recipientEmail: string, loginLink: s
     }
   };
   
-  // Function to send email notification to admin
-  const sendEmailToAdmin = async (message: string) => {
-    const adminEmail = config.user as string; 
-    await sendEmail(adminEmail, 'User Blocked', message);
-  };
+  

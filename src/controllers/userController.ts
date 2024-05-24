@@ -1,16 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import {
-  createUser,
   findUserByEmail,
   findUserById,
 } from "../services/userService";
 import { generateToken } from "../services/authService";
 import { comparePasswords, hashPassword } from "../services/bcryptService";
-import { sendRegistrationEmail } from "../services/emailService";
-import { loginSchema, registerSchema } from "../utils/validation";
+import { loginSchema } from "../utils/validation";
 import { generateResponse } from "../utils/Response";
 import { Req } from "../interface/request";
 import { getRatingsByUser } from "../services/ratingService";
+import { blockUserAfterThreeAttempts } from "../services/incorrectPasswordService";
 
 export const loginUser = async (
   req: Request,
@@ -32,7 +31,10 @@ export const loginUser = async (
 
     const isMatch = await comparePasswords(password, user.password);
     if (!isMatch) {
+      await blockUserAfterThreeAttempts(email);
+
       return generateResponse(res, 400, "Incorrect password");
+
     }
 
     const token = generateToken(user._id);
