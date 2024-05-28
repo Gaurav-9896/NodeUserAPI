@@ -1,5 +1,4 @@
 import { getAdminEmail } from "../Middleware/getAdminEmail";
-import { Admin } from "../models/adminModel";
 import User from "../models/userModel";
 import { generateResponse } from "../utils/Response";
 import { sendEmail } from "./emailService";
