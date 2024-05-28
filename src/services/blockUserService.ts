@@ -20,14 +20,14 @@ export const blockUserAfterThreeAttempts = async (email: string) => {
 
       await user.save();
 
-      // Notify the user via email
+  
       await sendEmail(
         user.email,
         "Your account has been blocked",
         "Your account has been blocked for 15 minutes due to 3 incorrect login attempts."
       );
 
-      // Notify the admin via email
+
       
       const admin = await User.findOne({ role: "admin" });
       if (admin) {

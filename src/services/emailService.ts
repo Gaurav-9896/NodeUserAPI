@@ -1,7 +1,6 @@
 import nodemailer from 'nodemailer';
 import config from '../config/config';
-import { checkAdminRole } from '../Middleware/checkAdminRole';
-import {  getAdminEmail } from '../Middleware/getAdminEmail';
+;
 
 
 const transport = nodemailer.createTransport({
@@ -52,7 +51,7 @@ export async function sendRegistrationEmail(recipientEmail: string, loginLink: s
       
       
   
-      // Define email options
+   
       const mailOptions = {
         from: config.user,
         to,
@@ -60,9 +59,8 @@ export async function sendRegistrationEmail(recipientEmail: string, loginLink: s
         text,
       };
   
-      // Send the email
       await transport.sendMail(mailOptions);
-      console.log('Email sent successfully');
+  
     } catch (error) {
       console.error('Error sending email:', error);
     }
