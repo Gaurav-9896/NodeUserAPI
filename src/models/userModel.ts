@@ -9,7 +9,7 @@ export interface IUser extends Document {
   dob: Date;
   role: String;
   isBlocked: Boolean;
-  blockedUntil?: Date;
+  blockedUntil?: Date | null;
   incorrectLoginAttempts: number;
 }
 

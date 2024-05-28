@@ -87,8 +87,8 @@ export const deleteUserRating = async (
   res: Response,
   next: NextFunction
 ) => {
-  // Extract necessary data from request
-  const { toUserId } = req.body; // Assuming toUserId is the identifier of the user whose rating needs to be deleted
+  
+  const { toUserId } = req.body; 
   const userId = req.user;
   try {
     const ratings = await getRatingsByUser(userId);
@@ -126,7 +126,7 @@ export const deleteUserRating = async (
   }
 };
 
-//get all rating
+
 export const getAllRatings = async (
   req: Req,
   res: Response,

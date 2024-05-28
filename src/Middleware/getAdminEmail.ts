@@ -1,10 +1,12 @@
 import { Response } from "express";
 import { Admin } from "../models/adminModel";
 import { generateResponse } from "../utils/Response";
+import { Req } from "../interface/request";
 
-export const getAdminEmail = async (req: Request, res: Response) => {
+export const getAdminEmail = async (req: Req, res: Response) => {
   try {
-    const admin = await Admin.findOne({ role: "admin" });
+    const user = req.user;
+    const admin = await user.findOne({ role: "admin" });
 
     if (!admin) {
       return generateResponse(res, 404, "Admin not found");
